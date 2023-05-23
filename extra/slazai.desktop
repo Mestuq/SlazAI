@@ -1,0 +1,5 @@
+[Desktop Entry]
+Type=Application
+Name=slazai
+Exec=lxterminal -e '/usr/bin/python3 /home/pi/SlazAI/index.py; bash'
+StartupNotify=true
