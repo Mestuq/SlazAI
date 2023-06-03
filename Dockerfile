@@ -21,7 +21,7 @@ RUN apt-get update && \
 RUN pip install python-discord selenium netifaces urllib3 configparser selenium
 
 #Downloading geckodriver
-RUN wget -O /usr/local/bin/geckodriver https://github.com/mozilla/geckodriver/releases/latest/download/geckodriver-linux64.tar.gz && \
+RUN wget -O /usr/local/bin/geckodriver https://github.com/mozilla/geckodriver/releases/download/v0.32.0/geckodriver-v0.32.0-linux64.tar.gz && \
     tar -xvf /usr/local/bin/geckodriver -C /usr/local/bin 
 
 #For non-desktop environments
