@@ -55,6 +55,11 @@ pip install selenium
 ```
 
 ## Installation:
+### For Docker users:
+Run container in interactive mode or change config file files_conf/dane.conf to configure your bot.
+Warning! Dockerfile was not carefully checked against errors.
+docker run -it slaz-AI
+### Instalation without docker
 You have to have Firefox installed!<br />
 Unzip master file. <br />
 Install Geckodriver from here: https://github.com/mozilla/geckodriver/releases<br />

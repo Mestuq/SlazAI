@@ -1,4 +1,4 @@
-# RUN CONTAINER IN INTERACTIVE MODE!
+# RUN CONTAINER IN INTERACTIVE MODE! 
 # docker run -it slaz-AI
 
 #Python environment
@@ -35,4 +35,4 @@ ENV MOZ_PROFILE /files_conf/profile/
 RUN firefox-esr -CreateProfile default && pkill -9 firefox-esr
 
 #Running bot and youtube initialisation
-CMD  ["python", "YoutubeInit.py"] && ["python", "slaz-AI/index.py"] 
+CMD  ["python", "slaz-AI/YoutubeInit.py"] && ["python", "slaz-AI/index.py"] 
