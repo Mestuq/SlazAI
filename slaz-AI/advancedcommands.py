@@ -14,6 +14,10 @@ import iniLoad
 import anime
 import youtube
 
+# Gamejam topics
+import gamejam
+gamejam.load_topics()
+
 poczekaj=0
 
 # Class/Struct matching username with their swears count
@@ -168,6 +172,17 @@ async def response_list(tabela,tabela_pierwotna,channel,guild,message,client):
     if tabela_pierwotna[0] == 'say':
         findChannel = discord.utils.get(client.get_all_channels(), name=tabela_pierwotna[1])
         await findChannel.send(tabela_pierwotna[2].replace('_', ' '))
+
+
+    # GAMEJAM MODULE
+    if tabela_pierwotna[0] == '&add':
+        await gamejam.add_topic(channel,tabela_pierwotna[1].replace('_', ' '))
+    if tabela_pierwotna[0] == '&remove':
+        await gamejam.remove_topic(channel,tabela_pierwotna[1])
+    if tabela_pierwotna[0] == '&show':
+        await gamejam.remove_topic(channel)
+    if tabela_pierwotna[0] == '&random':
+        await gamejam.random_topic(channel)
     
     # If no command was found, then return ''
     return ''
