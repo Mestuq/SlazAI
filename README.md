@@ -70,25 +70,50 @@ Run "python slaz-AI/index.py" <br />
 Answear a several questions in command line.<br />
 
 ## List of commands:
-Normal commands:
+**Normal commands:**
+
 "stwórz mi kanał [name_of_chanel_without_space]" - create a message channel in current category.
+
 "zamknij ryj" or "zamknij morde" or "&start_silient" - Make bot silient for 15 minutes.
+
 "dobra mów" albo "&end_silient" - koniec wyciszenia bota
+
 "pokaż ranking przekleństw" - Show swear ranking (who swears the most)
+
 "Widzisz mnie?" - Check if bot works (in early state, for debug purposes)
+
 "animeupdate" - Check for new anime (doing automaticly every day)
+
 "youtubeupdate [number]" - Check for new youtube videos (doing automaticly every day). Optional argument is to stipulate how old videos will be considered.
+
 "exitbotme" - Quit the discord server.
+
 "say [name_of_channel] [content]" - bot will send a message (content) into given channel name. Replace spaces with '_' in content argument. 
 
-Commands for superusers:
+"&add [topic]" - Add new GameJam topic
+
+"&remove [ID]" - Remove GameJam topic with ID
+
+"&show" - Show all GameJam topics
+
+"&random" - Random one GameJam topic.
+
+**Commands for superusers:**
+
 "AnimeSetChannel" - sets the channel on which anime news will appear
+
 "YoutubeSetChannel" - sets the channel on which youtube news will appear
+
 "localip [direction]" - give of server local ip.
+
 "&debug-p [command]" - debug of given message
+
 "&debug [command]" - debug of sent message
+
 "version" - check version of bot
 
-Work in progress (curenlty not works):
+**Work in progress (curenlty not works):**
+
 "aktualizuj" - automatic download updates from github. (This option stopped working some time ago and I need to fix it)
+
 "vlc [url]" - music on voice channel
