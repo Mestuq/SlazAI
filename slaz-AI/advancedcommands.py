@@ -177,7 +177,7 @@ async def response_list(tabela,tabela_pierwotna,channel,guild,message,client):
     if tabela_pierwotna[0] == '&add':
         await gamejam.add_topic(channel,tabela_pierwotna[1].replace('_', ' '))
     if tabela_pierwotna[0] == '&remove':
-        await gamejam.remove_topic(channel,tabela_pierwotna[1])
+        await gamejam.remove_topic(channel,(int(tabela_pierwotna[1])-1))
     if tabela_pierwotna[0] == '&show':
         await gamejam.show_topics(channel)
     if tabela_pierwotna[0] == '&random':
