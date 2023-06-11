@@ -16,7 +16,6 @@ import youtube
 
 # Gamejam topics
 import gamejam
-gamejam.load_topics()
 
 poczekaj=0
 
