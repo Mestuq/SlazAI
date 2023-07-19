@@ -74,7 +74,7 @@ Answear a several questions in command line.<br />
 
 "stwórz mi kanał [name_of_chanel_without_space]" - create a message channel in current category.
 
-"zamknij ryj" or "zamknij morde" or "&start_silient" - Make bot silient for 15 minutes.
+"zamknij [word]" or "&start_silient" - Make bot silient for 15 minutes.
 
 "dobra mów" albo "&end_silient" - koniec wyciszenia bota
 
