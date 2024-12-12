@@ -6,9 +6,14 @@ We came up with the idea to bring his humor to our discord server as well. You c
 <br /><br /><br />
 
 ## Features:
-### **Clever answers:**
+### **AI features:**
 
-Ślazatek checking every single word of your message, not only that with the prefix. It's collecting words, and matches the answares based of predefinied answers with words that are needed.
+Automatically finds user questions and answers them. Images and attachments are supported. It tracks 1-hour history of context for all users. I'm using the OpenRouter API.
+Moreover, it summarizes YouTube videos using transcriptions and generates summaries for anime announcements (see below).
+
+### **Predefined answers:**
+
+Ślazatek checks every single word of your message, not just those with a specific prefix. It collects words and matches the answers based on predefined answers with the necessary words.
 
 ### **Security:**
 

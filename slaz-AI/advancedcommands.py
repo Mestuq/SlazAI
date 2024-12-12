@@ -9,6 +9,7 @@ import netifaces
 
 import codecs
 
+import base64
 from datetime import datetime
 import iniLoad
 import anime
@@ -17,7 +18,81 @@ import youtube
 # Gamejam topics
 import gamejam
 
+import requests
+import json
+
+import autoduo.auto
+
 poczekaj=0
+
+def url_to_base64(image_url):
+    try:
+        response = requests.get(image_url)
+        response.raise_for_status()  # Raise an HTTPError for bad responses (4xx and 5xx)
+        base64_image = base64.b64encode(response.content).decode('utf-8')
+        return base64_image
+    except requests.RequestException as e:
+        print(f"Error fetching the image: {e}")
+        return None
+
+def check_mime_type(url):
+    try:
+        response = requests.head(url)
+        response.raise_for_status()
+        content_type = response.headers.get('Content-Type')
+        if content_type:
+            print(f"MIME Type of {url}: {content_type}")
+            return content_type
+        else:
+            print(f"No Content-Type header found for {url}")
+            return None
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred: {e}")
+        return None
+
+def unprecised_command(mess,requir):
+    for req in requir:
+        fulfills=False
+        for mes in mess:
+            if req == mes:
+                fulfills=True
+        if fulfills == False:
+            return False
+    return True
+
+def get_formatted_messages(message_log, include_images=True):
+    messages = []
+    for log_entry in message_log:
+        timestamp, author, content, attachment_list = log_entry
+        role = "user" if author != "Ślazatek" else "assistant"
+        
+        content_list = []
+        
+        # Add the text content
+        if content:
+            content_list.append({
+                "type": "text",
+                "text": author + " : " + content + " "
+            })
+        
+        # Add the image attachments if include_images is True
+        if include_images:
+            for attachment_url in attachment_list:
+                base64_image = url_to_base64(attachment_url)
+                mime_type = check_mime_type(attachment_url)
+                content_list.append({
+                    "type": "image_url",
+                    "image_url": {
+                        "url":  f"data:{mime_type};base64,{base64_image}"
+                    }
+                })
+        
+        messages.append({
+            "role": role,
+            "content": content_list if content_list else content
+        })
+    
+    return messages
 
 # Class/Struct matching username with their swears count
 class v2:
@@ -27,7 +102,7 @@ class v2:
     def __repr__(self):
         return repr((self.ids,self.howmanys)) 
 
-async def response_list(tabela,tabela_pierwotna,channel,guild,message,client):
+async def response_list(tabela,tabela_pierwotna,channel,guild,message,client,message_image_log):
     # pierszy element to '#'
     global poczekaj
 
@@ -69,6 +144,89 @@ async def response_list(tabela,tabela_pierwotna,channel,guild,message,client):
         sys.exit(0)
         return ''
     
+    if unprecised_command(tabela,["co", "jest"]) \
+        or unprecised_command(tabela,["który"]) \
+        or unprecised_command(tabela,["kim"]) \
+        or unprecised_command(tabela,["kto"]) \
+        or unprecised_command(tabela,["ktury"]) \
+        or unprecised_command(tabela,["skąd"]) \
+        or unprecised_command(tabela,["z kąd"]) \
+        or unprecised_command(tabela,["jak"]) \
+        or unprecised_command(tabela,["gdzie"]) \
+        or unprecised_command(tabela,["?"]) \
+        or unprecised_command(tabela,["kiedy"]):
+        current_date = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+        sarcastic_prompt = "Jesteś teraz na chat-cie discord na serwerze Mroczne Zakątki i piszesz tam pod pseudonimem Ślazatek. Piszesz teraz razem z innymi użytkownikami na serwerze. \
+            Jest dzisiaj "+current_date+". \
+            Pomagaj użytkownikom w razie potrzeby. \
+            Odpowiadaj krótko, najlepiej w dwóch-trzech zdaniach."
+        
+        # Jeżeli ktoś przypadkiem popełni błąd ortograficzny w wiadomości to mu go złośliwie wypomnij. \
+
+        print(get_formatted_messages(message_image_log))
+
+        messages = [ 
+            {
+                "role": "system", 
+                "content": [{
+                    'type': 'text', 
+                    'text': sarcastic_prompt
+                }]
+            } ] + get_formatted_messages(message_image_log)
+
+        if len(message.content) > 10:
+
+            ai_api_key=iniLoad.iniLoad('dane.conf','AI','api_key','0')
+            
+            response_AI = requests.post(
+            url="https://openrouter.ai/api/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {ai_api_key}"
+            },
+            data=json.dumps({
+                "model": "google/gemini-flash-1.5",
+                "messages": messages,
+                "max_tokens": 200
+                
+            })
+            )
+            
+            if response_AI.status_code == 200:
+                response_content = response_AI.json()
+                if 'choices' in response_content and len(response_content['choices']) > 0:
+                    ai_answear = response_content['choices'][0]['message']['content']
+
+                    if ai_answear.startswith("ŚlazGPT :"):
+                        ai_answear = ai_answear[len("ŚlazGPT :"):].strip()
+                    if ai_answear.startswith("ŚlazGPT:"):
+                        ai_answear = ai_answear[len("ŚlazGPT:"):].strip()
+                    if ai_answear.startswith("Ślazatek :"):
+                        ai_answear = ai_answear[len("Ślazatek :"):].strip()
+                    if ai_answear.startswith("Ślazatek:"):
+                        ai_answear = ai_answear[len("Ślazatek:"):].strip()
+
+                    ai_answear = ai_answear.replace("@Mestuq", "<@352808188338241536>").replace("@mestuq", "<@352808188338241536>")
+                    ai_answear = ai_answear.replace("@Kasztan", "<@368814924144705549>").replace("@kasztan", "<@368814924144705549>")
+                    ai_answear = ai_answear.replace("@Aztoja", "<@332452079908028418>").replace("@aztoja", "<@332452079908028418>")
+                    ai_answear = ai_answear.replace("@Szklanka", "<@391237384899133441>").replace("@szklanka", "<@391237384899133441>")
+
+                    # Delete AI emoji
+                    for i in range(len("<:AI:1314942990472712222>"), 0, -1):
+                        #print(f"<:AI:{'1314942990472712222>'[:i]}")
+                        ai_answear = ai_answear.replace(f"<:AI:{'1314942990472712222>'[:i]}", "")
+                    ai_answear = ai_answear.replace("<:AI:", "") 
+                    ai_answear = ai_answear.replace("<:AI", "") 
+                    ai_answear = ai_answear.replace("<:A", "")  # Final case
+
+                    return ai_answear + "<:AI:1314942990472712222>"
+            else:
+                print(response_AI)
+
+
+
+
+
     # Show the ranking of swears
     if tabela[0] == 'pokaż':
         if tabela[1] == 'ranking':
@@ -153,12 +311,12 @@ async def response_list(tabela,tabela_pierwotna,channel,guild,message,client):
     # Manual update of youtube videos
     if tabela_pierwotna[0] == 'youtubeupdate':
         await message.delete()
-        num=10
+        num=50
         
         try:
             num=int(tabela_pierwotna[1])
         except ValueError:
-            num=10
+            num=50
 
         await youtube.youtubeUpdate(client,num)
     
@@ -171,6 +329,9 @@ async def response_list(tabela,tabela_pierwotna,channel,guild,message,client):
     if tabela_pierwotna[0] == 'say':
         findChannel = discord.utils.get(client.get_all_channels(), name=tabela_pierwotna[1])
         await findChannel.send(tabela_pierwotna[2].replace('_', ' '))
+    
+    if tabela[0] == 'autoduo':
+        await autoduo.auto.try_solve(client)
 
 
     # GAMEJAM MODULE

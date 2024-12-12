@@ -1,5 +1,8 @@
 from pickle import FALSE, TRUE
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+
+from youtube_transcript_api import YouTubeTranscriptApi
 
 import logging
 import io
@@ -10,22 +13,29 @@ import os, sys
 import iniLoad
 import time
 
+import requests
+import json
+
 
 async def youtubeUpdate(client,numberOfCheck):
     logging.warning('Loanching YouTube')
     lista=[]
 
     # Open Firefox
-    profile_path = '../files_conf/profile/'
-    fp = webdriver.FirefoxProfile(profile_path)
-    driver = webdriver.Firefox(fp)
-
+    #profile_path = '../files_conf/profile/'
+    #fp = webdriver.FirefoxProfile(profile_path)
+    #driver = webdriver.Firefox(fp, executable_path="/home/pi/Downloads/geckodriver")
+    options = webdriver.ChromeOptions()
+    options.add_argument("--no-sandbox")
+    options.add_argument(r"--user-data-dir=/home/pi/.config/chromium")
+    options.add_argument(r'--profile-directory=Default')
+    driver = webdriver.Chrome('/usr/lib/chromium-browser/chromedriver',options=options)
     # Open your subscriptions
     driver.get("https://www.youtube.com/feed/subscriptions")
 
     # Wait page to load
     logging.warning('Waiting...')
-    time.sleep(20)
+    time.sleep(15)
     logging.warning('Waiting ended')
 
     text=''
@@ -59,6 +69,48 @@ async def youtubeUpdate(client,numberOfCheck):
                                 searchfile = io.open('../files_conf/'+"YoutubeCeche.txt", mode="a", encoding="utf-8")
                                 searchfile.write(grabbedUrl+"\n")
                                 searchfile.close()
+
+                                # ----------------- AI FEATURE ----------------- 
+
+                                transcript_text = ""
+                                try:
+                                    transcript = YouTubeTranscriptApi.get_transcript(grabbedUrl, languages=['pl'])
+                                    transcript_text = " ".join([entry['text'] for entry in transcript])
+                                except Exception as e:
+                                    print(f"Transcription error: {e}")
+
+                                if len(transcript_text) > 6000:
+                                    transcript_text[:6000]
+                                if len(transcript_text) > 100:
+
+                                    ai_api_key=iniLoad.iniLoad('dane.conf','AI','api_key','0')
+                                    
+                                    response_AI = requests.post(
+                                    url="https://openrouter.ai/api/v1/chat/completions",
+                                    headers={
+                                        "Authorization": f"Bearer {ai_api_key}"
+                                    },
+                                    data=json.dumps({
+                                        "model": "google/gemini-flash-1.5",
+                                        "messages": [
+                                        {
+                                            "role": "user",
+                                            "content": "Poniższy tekst to transkrypcja filmu. Twoim zadaniem jest przygotowanie krótkiego streszczenia treści całego filmu. Oto treść filmu: ``` "+transcript_text+"  ```"
+                                        }
+                                        ],
+                                        "max_tokens": 500
+                                        
+                                    })
+                                    )
+                                    if response_AI.status_code == 200:
+                                        response_content = response_AI.json()
+                                        if 'choices' in response_content and len(response_content['choices']) > 0:
+                                            summary = response_content['choices'][0]['message']['content']
+                                            print(summary)
+                                            lista.append(summary + "<:AI:1314942990472712222>")
+
+                                # ----------------- AI FEATURE ----------------- 
+
                                 logging.warning('https://www.youtube.com/watch?v='+grabbedUrl)
                                 lista.append('https://www.youtube.com/watch?v='+grabbedUrl)
                             

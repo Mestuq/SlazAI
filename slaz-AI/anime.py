@@ -7,6 +7,9 @@ import time
 import logging
 import urllib.request
 
+import requests
+import json
+
 #Anime update command
 async def animenews(client):
 
@@ -100,6 +103,46 @@ async def animenews(client):
                                     searchfile.close()
                                     #lista.append("**         Ogłoszono nowe Anime!**\n**"+nameurl+"** \nPremiera planowana jest na: " +dateurl+"\nWięcej informacji znajdziesz na: \n"+infourl+"\n"+imageurl+"\n")
 
+                                    # ----------------- AI FEATURE ----------------- 
+                                    ai_description = ""
+
+                                    if len(nameurl) > 10:
+
+                                        ai_api_key=iniLoad.iniLoad('dane.conf','AI','api_key','0')
+                                        
+                                        response_AI = requests.post(
+                                        url="https://openrouter.ai/api/v1/chat/completions",
+                                        headers={
+                                            "Authorization": f"Bearer {ai_api_key}"
+                                        },
+                                        data=json.dumps({
+                                            "model": "perplexity/llama-3.1-sonar-large-128k-online",
+                                            "messages": [
+                                            {
+                                                "role": "user",
+                                                "content": "Wyjaśnij krótko na czym polega historia nadchodzącego anime \""+nameurl+"\". Nie wchodź w szczegóły."
+                                            }
+                                            ],
+                                            "max_tokens": 500
+                                            
+                                        })
+                                        )
+                                        if response_AI.status_code == 200:
+                                            response_content = response_AI.json()
+                                            if 'choices' in response_content and len(response_content['choices']) > 0:
+                                                ai_description = response_content['choices'][0]['message']['content'] + " (AI)"
+                                                
+                                                for i in range(1, 15): 
+                                                    ai_description = ai_description.replace(f"[{i}]", "")
+
+                                                print(ai_description)
+                                                
+                                                #await channel.send(summary)
+                                                #await channel.send("<:AI:1314942990472712222>")
+
+                                    # ----------------- AI FEATURE ----------------- 
+
+
 
                                     fildLargeImage=''
                                     if imageurl == "":
@@ -113,11 +156,11 @@ async def animenews(client):
                                         
                                     embed = discord.Embed(
                                         title = nameurl,
-                                        description = "Premiera planowana jest na: " +dateurl,
+                                        description = ai_description, #"Premiera planowana jest na: " +dateurl,
                                         colour = discord.Colour.blue(),
                                         url=infourl
-                                        
                                     )
+                                    embed.set_footer(text="Premiera planowana jest na: " +dateurl)
                                     embed.set_image(url=fildLargeImage)
                                     #embed.set_author(name='Ogłoszono nowe anime!')
 
