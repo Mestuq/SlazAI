@@ -29,13 +29,13 @@ async def reddit_posts(client):
         already_presented = False
         with io.open('../files_conf/reddit_saved.txt', mode="r", encoding="utf-8") as searchfile:
             for search in searchfile:
-                if search.strip() == post_title:
+                if search.strip() == post_url:
                     already_presented = True
                     break
 
         if not already_presented:
             with io.open('../files_conf/reddit_saved.txt', mode="a", encoding="utf-8") as searchfile:
-                searchfile.write(post_title + "\n")
+                searchfile.write(post_url + "\n")
 
             await channel.send(f'{author} : \"{post_title}\" \n{post_url}')
             time.sleep(0.5)
