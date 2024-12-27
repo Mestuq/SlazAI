@@ -59,7 +59,7 @@ async def handle_response(command_words, original_words, channel, guild, message
         sys.exit(0)
         return ''
 
-    if is_command_match(command_words, ["<@40543924654820569>"]) or any(word in command_words for word in ["ślazatku", "ślazatek", "ślazatkowi", "ślaz", "ślazowi", "ślazu"]):
+    if is_command_match(command_words, ["<@405439246548205569>"]) or any(word in original_words for word in ["ślazatku", "ślazatek", "ślazatkowi", "ślaz", "ślazowi", "ślazu"]):
         """Generates a sarcastic AI response based on the current date and context."""
         current_date = datetime.now().strftime("%Y-%m-%d %H:%M")
         sarcastic_prompt = f"Jesteś teraz na chat-cie discord na serwerze Mroczne Zakątki i piszesz tam pod pseudonimem Ślazatek. Piszesz teraz razem z innymi użytkownikami na serwerze. Jest dzisiaj {current_date}. Pomagaj użytkownikom w razie potrzeby. Odpowiadaj krótko, najlepiej w dwóch-trzech zdaniach."
