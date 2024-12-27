@@ -10,6 +10,7 @@ import anime
 import youtube
 import gamejam
 import airesponses
+import reddit
 
 wait_time = 0
 
@@ -39,7 +40,7 @@ async def handle_response(command_words, original_words, channel, guild, message
         if wait_time != datetime.now().minute:
             channel_count = len(message.guild.channels)
             if channel_count < 100:
-                channel_name = original_words[3]
+                channel_name = command_words[3]
                 new_channel = await message.guild.create_text_channel(channel_name)
                 await new_channel.edit(category=message.channel.category, sync_permissions=True)
                 await new_channel.send(f'Kanał użytkownika: {message.author.name}')
@@ -80,19 +81,24 @@ async def handle_response(command_words, original_words, channel, guild, message
                 response_text += f"\n{iniload.ini_load('dane.conf', str(member.user_id), 'display_name', 'User not found')} # {member.count}"
             return response_text
 
-    if original_words[0] == 'vlc' and message.author.name == iniload.ini_load('dane.conf', 'Client', 'admin', ''):
+    if command_words[0] == 'vlc' and message.author.name == iniload.ini_load('dane.conf', 'Client', 'admin', ''):
         """Launches VLC media player with the specified file."""
-        subprocess.call(f'vlc {original_words[1]}', shell=True)
+        subprocess.call(f'vlc {command_words[1]}', shell=True)
         return 'Trwa uruchamianie...'
 
-    if original_words[0] == 'AnimeSetChannel' and message.author.name == iniload.ini_load('dane.conf', 'Client', 'admin', ''):
+    if command_words[0] == 'AnimeSetChannel' and message.author.name == iniload.ini_load('dane.conf', 'Client', 'admin', ''):
         """Sets the channel for anime updates."""
         iniload.ini_change("dane.conf", 'AnimeModule', 'Channel', message.channel.name)
         return 'Ok'
 
-    if original_words[0] == 'YoutubeSetChannel' and message.author.name == iniload.ini_load('dane.conf', 'Client', 'admin', ''):
+    if command_words[0] == 'YoutubeSetChannel' and message.author.name == iniload.ini_load('dane.conf', 'Client', 'admin', ''):
         """Sets the channel for YouTube updates."""
         iniload.ini_change("dane.conf", 'YoutubeModule', 'Channel', message.channel.name)
+        return 'Ok'
+
+    if command_words[0] == 'RedditSetChannel' and message.author.name == iniload.ini_load('dane.conf', 'Client', 'admin', ''):
+        """Sets the channel for Reddit updates."""
+        iniload.ini_change("dane.conf", 'RedditModule', 'Channel', message.channel.name)
         return 'Ok'
 
     if command_words[0] == 'zamknij' and command_words[1] in ['ryj', 'morde']:
@@ -103,42 +109,47 @@ async def handle_response(command_words, original_words, channel, guild, message
         """Resumes the bot's responses."""
         return '&end_silient'
 
-    if original_words[0] == 'localip' and original_words[1] == '-' and message.author.name == iniload.ini_load('dane.conf', 'Client', 'admin', ''):
+    if command_words[0] == 'localip' and command_words[1] == '-' and message.author.name == iniload.ini_load('dane.conf', 'Client', 'admin', ''):
         """Retrieves the local IP address of the default network interface."""
         iface = netifaces.gateways()['default'][netifaces.AF_INET][1]
         return netifaces.ifaddresses(iface)[netifaces.AF_INET][0]['addr']
 
-    if original_words[0] == 'animeupdate':
+    if command_words[0] == 'animeupdate':
         """Triggers an anime news update."""
         await message.delete()
         await anime.animenews(client)
+    
+    if command_words[0] == 'redditupdate':
+        """Triggers an Reddit subreddit update."""
+        await message.delete()
+        await reddit.reddit_posts(client)
 
-    if original_words[0] == 'youtubeupdate':
+    if command_words[0] == 'youtubeupdate':
         """Triggers a YouTube update with a specified number of videos."""
         await message.delete()
-        num = int(original_words[1]) if original_words[1].isdigit() else 50
+        num = int(command_words[1]) if command_words[1].isdigit() else 50
         await youtube.youtube_update(client, num)
 
-    if original_words[0] == 'exitbotme':
+    if command_words[0] == 'exitbotme':
         """Puts the bot into an infinite sleep loop."""
         while True:
             time.sleep(60)
 
-    if original_words[0] == 'say':
+    if command_words[0] == 'say':
         """Sends a message to a specified channel."""
-        target_channel = discord.utils.get(client.get_all_channels(), name=original_words[1])
-        await target_channel.send(original_words[2].replace('_', ' '))
+        target_channel = discord.utils.get(client.get_all_channels(), name=command_words[1])
+        await target_channel.send(command_words[2].replace('_', ' '))
 
-    if original_words[0] == '&add':
+    if command_words[0] == '&add':
         """Adds a new topic to the game jam list."""
-        await gamejam.add_topic(channel, original_words[1].replace('_', ' '))
-    if original_words[0] == '&remove':
+        await gamejam.add_topic(channel, command_words[1].replace('_', ' '))
+    if command_words[0] == '&remove':
         """Removes a topic from the game jam list by index."""
-        await gamejam.remove_topic(channel, int(original_words[1]) - 1)
-    if original_words[0] == '&show':
+        await gamejam.remove_topic(channel, int(command_words[1]) - 1)
+    if command_words[0] == '&show':
         """Displays all topics in the game jam list."""
         await gamejam.show_topics(channel)
-    if original_words[0] == '&random':
+    if command_words[0] == '&random':
         """Selects and displays a random topic from the game jam list."""
         await gamejam.random_topic(channel)
 

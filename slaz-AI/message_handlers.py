@@ -6,6 +6,7 @@ import discord
 import youtube
 import iniload
 import anime
+import reddit
 
 VALID_IMAGE_EXTENSIONS = {'.png', '.jpg', '.jpeg', '.bmp'}
 CONFIG_FILE = 'dane.conf'
@@ -41,10 +42,11 @@ def log_message(message: discord.Message):
 
 def word_in_message(message, fixing=False):
     """Processes a given message to clean and split it into individual words or tokens."""
-    message = message.lower() if not fixing else message
-    cleaned_message = ''.join([char for i, char in enumerate(message) if i == 0 or char != message[i - 1]])
-    cleaned_message = cleaned_message.replace(",", " , ").replace("#", " # ").replace("?", " ? ").replace("!", " ! ").replace(".", " . ").replace("\"", " \" ").replace("/", " / ").replace("\\", " \\ ")
-    return cleaned_message.split()
+    if fixing:
+        message = message.lower() 
+        message = ''.join([char for i, char in enumerate(message) if i == 0 or char != message[i - 1]])
+        message = message.replace(",", " , ").replace("#", " # ").replace("?", " ? ").replace("!", " ! ").replace(".", " . ").replace("\"", " \" ").replace("/", " / ").replace("\\", " \\ ")
+    return message.split()
 
 def update_user_data(message: discord.Message):
     """Update user data in the configuration file."""
@@ -68,4 +70,5 @@ async def handle_daily_tasks(client: discord.Client):
             file.write(current_date)
         await anime.animenews(client)
         await youtube.youtube_update(client, 50)
+        await reddit.reddit_posts(client)
         logger.info("Daily commands done")

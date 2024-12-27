@@ -71,7 +71,7 @@ async def on_message(message: discord.Message):
         send_this_when_free = ''
 
     command_words = message_handlers.word_in_message(message.content, False)
-    original_words =message_handlers.word_in_message(message.content, True)
+    original_words = message_handlers.word_in_message(message.content, True)
 
     resp = response.response_list(command_words, original_words, message.channel, guild, message, client)
     resp2 = await advancedcommands.handle_response(command_words, original_words, message.channel, guild, message, client)
