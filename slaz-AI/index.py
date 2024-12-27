@@ -11,7 +11,7 @@ import response
 import advancedcommands
 import iniload
 import airesponses
-import message_handlers
+import messagehandlers
 
 VALID_IMAGE_EXTENSIONS = {'.png', '.jpg', '.jpeg', '.bmp'}
 CONFIG_FILE = 'dane.conf'
@@ -57,8 +57,8 @@ async def on_message(message: discord.Message):
         return
 
     airesponses.log_message(message)
-    message_handlers.log_message(message)
-    message_handlers.update_user_data(message)
+    messagehandlers.log_message(message)
+    messagehandlers.update_user_data(message)
 
     global silent_mode
     global send_this_when_free
@@ -70,8 +70,8 @@ async def on_message(message: discord.Message):
         await message.channel.send(send_this_when_free)
         send_this_when_free = ''
 
-    command_words = message_handlers.word_in_message(message.content, False)
-    original_words = message_handlers.word_in_message(message.content, True)
+    command_words = messagehandlers.word_in_message(message.content, False)
+    original_words = messagehandlers.word_in_message(message.content, True)
 
     resp = response.response_list(command_words, original_words, message.channel, guild, message, client)
     resp2 = await advancedcommands.handle_response(command_words, original_words, message.channel, guild, message, client)
@@ -82,13 +82,13 @@ async def on_message(message: discord.Message):
         resp = ''
         await message.channel.send('Dobra, będę cicho')
         silent_mode = True
-        Timer(SILENT_MODE_DURATION, message_handlers.after_silence).start()
+        Timer(SILENT_MODE_DURATION, messagehandlers.after_silence).start()
     if resp2 == '&end_silient':
         resp = ''
-        message_handlers.after_silence()
+        messagehandlers.after_silence()
         await message.channel.send('Ok')
 
-    user_words = message_handlers.word_in_message(message.author.name, False)
+    user_words = messagehandlers.word_in_message(message.author.name, False)
     if response.blacklist_usernames(user_words) == 'ban':
         resp = f'Pan ślazatek bezpieczenstwa pilnuje, {message.author.name} bana na serwera otrzymuje :)'
         await message.author.ban(reason="System ślazatkowych zabezpieczeń wykrył zakazany nick")
@@ -96,7 +96,7 @@ async def on_message(message: discord.Message):
     if resp != '' and not silent_mode:
         await message.channel.send(resp)
 
-    await message_handlers.handle_daily_tasks(client)
+    await messagehandlers.handle_daily_tasks(client)
 
 def main():
     """Main function to start the bot."""
