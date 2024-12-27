@@ -18,7 +18,6 @@ async def reddit_posts(client):
     }
 
     response = requests.get(url, headers=headers)
-    print(response.content)
     soup = BeautifulSoup(response.content, 'html.parser')
 
     posts = soup.find_all('shreddit-post')
