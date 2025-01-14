@@ -18,27 +18,50 @@ def save_topics():
         json.dump(topics, file)
 
 async def add_topic(channel, topic):
-    """Adds a new topic to the 'topics' list and saves it to the JSON file."""
+    """Adds a new topic to the 'topics' list and saves it to the JSON file. Also sends the ID of the new topic."""
     load_topics()
+    
+    if topic in topics:
+        await channel.send(f'Temat "{topic}" już istnieje.')
+        return
+    
     topics.append(topic)
     save_topics()
-    await channel.send(f'Temat "{topic}" został dodany.')
-
+    
+    new_topic_id = len(topics)
+    await channel.send(f'Temat "{topic}" został dodany. ID: {new_topic_id}')
 async def remove_topic(channel, topic_id):
-    """Removes a topic from the 'topics' list based on the provided ID and saves the updated list to the JSON file."""
+    """Removes a topic from the 'topics' list based on the provided ID or topic name and saves the updated list to the JSON file."""
     load_topics()
-    if 0 <= topic_id < len(topics):
-        removed_topic = topics.pop(topic_id)
-        save_topics()
-        await channel.send(f'Temat "{removed_topic}" został usunięty.')
+    
+    if topic_id.isdigit():
+        topic_id_int = int(topic_id)
+        if 0 <= topic_id_int < len(topics):
+            removed_topic = topics.pop(topic_id_int)
+            save_topics()
+            await channel.send(f'Temat "{removed_topic}" został usunięty.')
+        else:
+            await channel.send('Niewłaściwe ID.')
     else:
-        await channel.send('Niewłaściwe ID.')
+        topic_id_lower = topic_id.lower()
+        found_index = -1
+        for i, topic in enumerate(topics):
+            if topic.lower() == topic_id_lower:
+                found_index = i
+                break
+        
+        if found_index != -1:
+            removed_topic = topics.pop(found_index)
+            save_topics()
+            await channel.send(f'Temat "{removed_topic}" został usunięty.')
+        else:
+            await channel.send(f'Temat "{topic_id}" nie został znaleziony.')
 
 async def show_topics(channel):
     """Displays all the topics in the 'topics' list."""
     load_topics()
     if topics:
-        topic_list = '\n'.join([f'{i}. {topic}' for i, topic in enumerate(topics)])
+        topic_list = '\n'.join([f'{i}. {topic}' for i, topic in enumerate(topics, start=1)])
         await channel.send(f'**Tematy:**\n{topic_list}')
     else:
         await channel.send('Brak tematów.')

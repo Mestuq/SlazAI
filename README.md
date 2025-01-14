@@ -9,6 +9,9 @@ We came up with the idea to bring his humor to our discord server as well. You c
 ### **AI features:**
 
 Automatically finds user questions and answers them. Images and attachments are supported. It tracks 1-hour history of context for all users. I'm using the OpenRouter API.
+The bot has been enhanced to handle more complex queries by extracting content from web pages and YouTube videos. When a user sends a message containing a URL, the bot will:
+- **For YouTube URLs:** Fetch the video transcript and append it to the message context, allowing the AI to provide more informed responses based on the video content.
+- **For Other URLs:** Scrape the text content from the webpage and append it to the message context, enabling the AI to respond with information derived from the linked content.
 Moreover, it summarizes YouTube videos using transcriptions and generates summaries for anime announcements (see below).
 
 ### **Predefined answers:**
@@ -50,6 +53,10 @@ Automatically sends a message to a designated channel when a new post is made in
 (For educational and private purpose only)
 <br /><br /><br />
 
+### **GameDev News Integration:**
+The bot now includes a GameDev news feature that fetches the latest posts from https://gamefromscratch.com/. Credits and links to the original post and author are included. Additionally, the posts are translated into Polish to make the content accessible to a wider audience.
+
+
 ### THIS BOT ONLY HANDLE ONE SERVER AT ONCE FOR ONE CLIENT!
 If you want to use this bot for multiple servers you need to make multiple discord api's in 
 https://discord.com/developers/
@@ -61,6 +68,9 @@ pip install netifaces
 pip install urllib3
 pip install configparser
 pip install selenium
+pip install beautifulsoup4
+pip install requests
+pip install youtube-transcript-api
 ```
 
 ## Installation:
@@ -111,6 +121,20 @@ Answer several questions in command line.<br />
 
 "&random" - Random one GameJam topic.
 
+"zapomnij historie" - Clears the entire AI history context instantly.
+
+"gamedevupdate" - Triggers a GameDev news update.
+
+"youtubeshow" - Displays the list of subscribed YouTube channels in packets of 10.
+
+"youtuberanking" - Displays the ranking of top subscribed YouTube channels based on subscriber count.
+
+"youtubesubscribe" - Subscribes to YouTube channels based on URLs provided in the message.
+
+"youtubeunsubscribe" - Unsubscribes from YouTube channels based on URLs provided in the message.
+
+"dailyupdate" - Triggers the daily updates for anime, YouTube, Reddit, and GameDev news.
+
 **Commands for superusers:**
 
 "AnimeSetChannel" - sets the channel on which anime news will appear
@@ -118,6 +142,8 @@ Answer several questions in command line.<br />
 "YoutubeSetChannel" - sets the channel on which youtube news will appear
 
 "RedditSetChannel" - sets the channel on which Reddit news will appear
+
+"GameDevSetChannel" - sets the channel on which GameDev updates will appear
 
 "localip [direction]" - give of server local ip.
 

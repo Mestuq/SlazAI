@@ -17,7 +17,6 @@ VALID_IMAGE_EXTENSIONS = {'.png', '.jpg', '.jpeg', '.bmp'}
 CONFIG_FILE = 'dane.conf'
 LOG_FILE = "../files_conf/log.txt"
 DAILY_FILE = "../files_conf/daily.txt"
-SILENT_MODE_DURATION = 5 * 60  # 5 minutes
 
 client = discord.Client()
 guild = discord.Guild
@@ -27,7 +26,6 @@ logger = logging.getLogger(__name__)
 
 connection_active = 0
 send_this_when_free = ''
-silent_mode = False
 message_image_log = []
 
 def check_internet_connection(retries: int = 3, delay: int = 3) -> bool:
@@ -60,7 +58,18 @@ async def on_message(message: discord.Message):
     messagehandlers.log_message(message)
     messagehandlers.update_user_data(message)
 
-    global silent_mode
+    command_words = messagehandlers.word_in_message(message.content, False)
+    original_words = messagehandlers.word_in_message(message.content, True)
+
+
+
+    if messagehandlers.get_silence_state() == True:
+        if command_words[0] == 'dobra' and command_words[1] == 'mów':
+            """Resumes the bot's responses."""
+            messagehandlers.silence_state(False)
+            await message.channel.send('Ok')
+        return
+
     global send_this_when_free
 
     if message.author.bot:
@@ -70,31 +79,20 @@ async def on_message(message: discord.Message):
         await message.channel.send(send_this_when_free)
         send_this_when_free = ''
 
-    command_words = messagehandlers.word_in_message(message.content, False)
-    original_words = messagehandlers.word_in_message(message.content, True)
-
     resp = response.response_list(command_words, original_words, message.channel, guild, message, client)
     resp2 = await advancedcommands.handle_response(command_words, original_words, message.channel, guild, message, client)
 
     if resp2 != '':
         resp = resp2
-    if resp2 == '&start_silient':
-        resp = ''
-        await message.channel.send('Dobra, będę cicho')
-        silent_mode = True
-        Timer(SILENT_MODE_DURATION, messagehandlers.after_silence).start()
-    if resp2 == '&end_silient':
-        resp = ''
-        messagehandlers.after_silence()
-        await message.channel.send('Ok')
 
     user_words = messagehandlers.word_in_message(message.author.name, False)
     if response.blacklist_usernames(user_words) == 'ban':
         resp = f'Pan ślazatek bezpieczenstwa pilnuje, {message.author.name} bana na serwera otrzymuje :)'
         await message.author.ban(reason="System ślazatkowych zabezpieczeń wykrył zakazany nick")
 
-    if resp != '' and not silent_mode:
-        await message.channel.send(resp)
+    if resp != '':
+        await messagehandlers.send_large_message(message.channel, resp)
+        # await message.channel.send(resp)
 
     await messagehandlers.handle_daily_tasks(client)
 

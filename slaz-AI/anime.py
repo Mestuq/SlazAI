@@ -28,6 +28,7 @@ async def animenews(client):
             for row in rows:
                 img_tag = row.find('img')
                 name_tag = row.find('a', class_='ENCYC')
+                description_tag = row.find('td', class_='easyread-width')
                 date_tag = row.find_all('td')[-1] if row.find_all('td') else None
 
                 if name_tag:
@@ -37,6 +38,7 @@ async def animenews(client):
                     
                     name = name_tag.text.strip()
                     date = date_tag.text.strip() if date_tag else "nieznany"
+                    description = description_tag.text.strip().replace(name, '').strip()
 
                     already_presented = False
                     with io.open('../files_conf/anime_saved.txt', mode="r", encoding="utf-8") as searchfile:
@@ -50,11 +52,17 @@ async def animenews(client):
                             searchfile.write(name + "\n")
 
                         ai_description = ""
-                        if len(name) > 10:
-                            anime_prompt = f"Wyjaśnij krótko na czym polega historia nadchodzącego anime \"{name}\". Nie wchodź w szczegóły. Pisz w języku polskim."
-                            summary = airesponses.get_ai_response_generic("perplexity/llama-3.1-sonar-large-128k-online",500,anime_prompt,None,False)
+                        if len(description) < 15:
+                            if len(name) > 10:
+                                anime_prompt = airesponses.load_prompt("anime_prompt").format(name=name)
+                                summary = airesponses.get_ai_response_generic("perplexity/llama-3.1-sonar-large-128k-online",500,anime_prompt,None,False)
+                                if summary:
+                                    ai_description = summary + " (AI)"
+                        else:
+                            anime_prompt = airesponses.load_prompt("translate_prompt").format(description=description)
+                            summary = airesponses.get_ai_response_generic("google/gemini-flash-1.5",500,anime_prompt,None,False)
                             if summary:
-                                ai_description = summary + " (AI)"
+                                ai_description = summary + " (przetłumaczono przez AI)"
 
                         embed = discord.Embed(
                             title=name,
