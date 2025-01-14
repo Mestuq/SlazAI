@@ -3,12 +3,12 @@
 
 Ślazatek is a fictional character from Flying Islands universum. 
 We came up with the idea to bring his humor to our discord server as well. You can meet him on our server "Mroczne Zakątki", or host him for yours servers. 
-<br /><br /><br />
+<br />
 
 ## Features:
 ### **AI features:**
 
-Automatically finds user questions and answers them. Images and attachments are supported. It tracks 1-hour history of context for all users. I'm using the OpenRouter API.
+Automatically finds user questions and answers them. Images and attachments are supported. It tracks 3-hour history of context for all users. I'm using the OpenRouter API.
 The bot has been enhanced to handle more complex queries by extracting content from web pages and YouTube videos. When a user sends a message containing a URL, the bot will:
 - **For YouTube URLs:** Fetch the video transcript and append it to the message context, allowing the AI to provide more informed responses based on the video content.
 - **For Other URLs:** Scrape the text content from the webpage and append it to the message context, enabling the AI to respond with information derived from the linked content.
@@ -95,7 +95,7 @@ Answer several questions in command line.<br />
 
 "stwórz mi kanał [name_of_chanel_without_space]" - create a message channel in current category.
 
-"zamknij [word]" or "&start_silient" - Make bot silent for 15 minutes.
+"zamknij [word] [number of minutes]" - Make bot silent for given number of minutes.
 
 "dobra mów" albo "&end_silient" - koniec wyciszenia bota
 

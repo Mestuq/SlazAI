@@ -36,8 +36,8 @@ async def remove_topic(channel, topic_id):
     
     if topic_id.isdigit():
         topic_id_int = int(topic_id)
-        if 0 <= topic_id_int < len(topics):
-            removed_topic = topics.pop(topic_id_int)
+        if 1 <= topic_id_int < len(topics)+1:
+            removed_topic = topics.pop(topic_id_int-1)
             save_topics()
             await channel.send(f'Temat "{removed_topic}" został usunięty.')
         else:

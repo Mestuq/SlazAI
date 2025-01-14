@@ -22,7 +22,7 @@ def load_prompt(name_of_prompt):
 
 def clean_log():
     """Cleans the message_image_log by removing entries older than one hour."""
-    one_hour_ago = datetime.now() - timedelta(hours=1)
+    one_hour_ago = datetime.now() - timedelta(hours=3)
     global message_image_log
     message_image_log = [entry for entry in message_image_log if entry[0] >= one_hour_ago]
 
